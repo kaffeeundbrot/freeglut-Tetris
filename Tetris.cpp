@@ -3,7 +3,7 @@
 // ======================
 // Globals
 // ======================
-float squareSize = 0.1f;
+float squareSize = 0.2f;
 
 // Movable piece controlled by arrow keys
 float squareX = 0.0f;
@@ -132,16 +132,16 @@ void display()
     float blue[3] = { 0.0f, 0.0f, 1.0f };
     float orange[3] = { 1.0f, 0.5f, 0.0f };
 
-    drawSPiece(-0.9f, -1.0f, green);     // fixed S piece
+    drawSPiece(-0.8f, -1.0f, green);     // fixed S piece
     drawTPieceRight(-1.0f, -1.0f, purple);    // fixed T piece
-    drawZPiece(-1.0f, -0.8f, red); // fixed Z piece
-    drawOPiece(0.7f, -0.9f, yellow); // fixed o piece
-    drawLPiece(0.6f, -1.0f, blue); // fixed L piece
-    drawJPiece(0.9f, -1.0f, orange); // fixed j piece
-    drawIPiece(0.6f, -0.7f, currentColor);
+    drawZPiece(-1.0f, -0.6f, red); // fixed Z piece
+    drawOPiece(0.4f, -0.8f, yellow); // fixed o piece
+    drawLPiece(0.2f, -1.0f, orange); // fixed L piece
+    drawJPiece(0.8f, -1.0f, blue); // fixed j piece
+    drawIPiece(0.2f, -0.4f, currentColor);
 
     // dito yung moveable pieces
-    drawIPiece(squareX, squareY, currentColor);
+    drawJPiece(squareX, squareY, blue);
 
     glutSwapBuffers();
 }
@@ -151,7 +151,7 @@ void display()
 // ======================
 void handleSpecialKeys(int key, int, int)
 {
-    const float step = 0.05f;
+    const float step = 0.2f;
     switch (key) {
     case GLUT_KEY_LEFT:  squareX -= step; break;
     case GLUT_KEY_RIGHT: squareX += step; break;
