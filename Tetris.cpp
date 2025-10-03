@@ -131,6 +131,7 @@ void display()
     float yellow[3] = { 1.0f, 1.0f, 0.0f };
     float blue[3] = { 0.0f, 0.0f, 1.0f };
     float orange[3] = { 1.0f, 0.5f, 0.0f };
+    float cyan[3] = { 0.2f, 0.7f, 1.0f };
 
     drawSPiece(-0.8f, -1.0f, green);     // fixed S piece
     drawTPieceRight(-1.0f, -1.0f, purple);    // fixed T piece
@@ -138,7 +139,7 @@ void display()
     drawOPiece(0.4f, -0.8f, yellow); // fixed o piece
     drawLPiece(0.2f, -1.0f, orange); // fixed L piece
     drawJPiece(0.8f, -1.0f, blue); // fixed j piece
-    drawIPiece(0.2f, -0.4f, currentColor);
+    drawIPiece(0.2f, -0.4f, cyan);
 
     // dito yung moveable pieces
     drawJPiece(squareX, squareY, blue);
