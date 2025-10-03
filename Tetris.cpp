@@ -5,6 +5,8 @@
 // ======================
 float squareSize = 0.2f;
 
+
+
 // Movable piece controlled by arrow keys
 float squareX = 0.0f;
 float squareY = 0.0f;
@@ -118,6 +120,21 @@ void drawTPieceRight(float x, float y, float color[3])
     drawSquare(x, y + 2 * s, s); // bottom
 }
 
+void drawTPieceDown(float x, float y, float color[3])
+{
+    glColor3fv(color);
+    float s = squareSize;
+
+    // Bottom row (3 squares)
+    drawSquare(x, y, s);       // left
+    drawSquare(x + s, y, s);   // middle
+    drawSquare(x + 2 * s, y, s); // right
+
+    // Top middle square
+    drawSquare(x + s, y + s, s);
+}
+
+
 
 //display
 void display()
@@ -177,6 +194,21 @@ void handleNormalKeys(unsigned char key, int, int)
     glutPostRedisplay();
 }
 
+void update(int value)
+{
+    const float step = 0.02f; // smaller step for smoother movement
+    squareY -= step;           // move down automatically
+
+    if (squareY <= -1.0f) {
+        squareY = -1.0f;
+    } // prevent going below
+
+
+    glutPostRedisplay();       // redraw the screen
+    glutTimerFunc(50, update, 0); // call update again in 50ms
+}
+
+
 // ======================
 // Main
 // ======================
@@ -192,6 +224,8 @@ int main(int argc, char** argv)
     glutDisplayFunc(display);
     glutKeyboardFunc(handleNormalKeys);
     glutSpecialFunc(handleSpecialKeys);
+
+    glutTimerFunc(50, update, 0); // start automatic movement
 
     glutMainLoop();
     return 0;
