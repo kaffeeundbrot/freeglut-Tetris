@@ -10,8 +10,6 @@ bool TPiecePlaced = false;
 bool IPiecePlaced = false;
 bool tetrisClear = false;
 bool showClearText = true; // controls blinking text
-void WhitePieces(int);
-void OriginalPieces(int);
 void toggleClearText(int); // blink function
 
 float green[3] = { 0.0f, 1.0f, 0.0f };
@@ -259,33 +257,7 @@ void display()
 // ======================
 // Effects
 // ======================
-void WhitePieces(int value) {
-    drawSPiece(-0.8f, -1.0f, white);
-    drawTPieceRight(-1.0f, -1.0f, white);
-    drawZPiece(-1.0f, -0.6f, white);
-    drawOPiece(0.4f, -0.8f, white);
-    drawLPiece(0.2f, -1.0f, white);
-    drawJPiece(0.8f, -1.0f, white);
-    drawIPiece(0.2f, -0.4f, white);
-    drawJPiece(-0.2f, -1.0f, white);
-    drawTPieceDown(-0.6f, -0.4f, white);
-    drawIPieceVertical(0.0f, -0.4f, white);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
 
-void OriginalPieces(int value) {
-    drawSPiece(-0.8f, -1.0f, green);
-    drawTPieceRight(-1.0f, -1.0f, purple);
-    drawZPiece(-1.0f, -0.6f, red);
-    drawOPiece(0.4f, -0.8f, yellow);
-    drawLPiece(0.2f, -1.0f, orange);
-    drawJPiece(0.8f, -1.0f, blue);
-    drawIPiece(0.2f, -0.4f, cyan);
-    drawJPiece(-0.2f, -1.0f, blue);
-    drawTPieceDown(-0.6f, -0.4f, purple);
-    drawIPieceVertical(0.0f, -0.4f, cyan);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
 
 // blinking for text
 void toggleClearText(int value) {
