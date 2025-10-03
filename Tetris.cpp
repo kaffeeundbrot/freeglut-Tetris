@@ -1,8 +1,7 @@
 #include <GL/freeglut.h>
 
-// ======================
 // Globals
-// ======================
+
 float squareSize = 0.2f;
 float moveX = 0.0f;
 bool piecePlaced = false;
@@ -10,8 +9,10 @@ bool JPiecePlaced = false;
 bool TPiecePlaced = false;
 bool IPiecePlaced = false;
 bool tetrisClear = false;
+bool showClearText = true; // controls blinking text
 void WhitePieces(int);
 void OriginalPieces(int);
+void toggleClearText(int); // blink function
 
 float green[3] = { 0.0f, 1.0f, 0.0f };
 float purple[3] = { 1.0f, 0.0f, 1.0f };
@@ -27,9 +28,9 @@ float squareX = 0.0f;
 float squareY = 0.0f;
 float currentColor[3] = { 0.2f, 0.7f, 1.0f };
 
-// ======================
+
 // Helper Functions
-// ======================
+
 void drawSquare(float x, float y, float s)
 {
     glBegin(GL_QUADS);
@@ -40,11 +41,7 @@ void drawSquare(float x, float y, float s)
     glEnd();
 }
 
-// ======================
 // Pieces
-// ======================
-
-// O piece
 void drawOPiece(float x, float y, float color[3])
 {
     glColor3fv(color);
@@ -55,7 +52,6 @@ void drawOPiece(float x, float y, float color[3])
     drawSquare(x + s, y + s, s);
 }
 
-// I piece
 void drawIPiece(float x, float y, float color[3])
 {
     glColor3fv(color);
@@ -64,7 +60,6 @@ void drawIPiece(float x, float y, float color[3])
         drawSquare(x + i * s, y, s);
 }
 
-// T piece
 void drawTPiece(float x, float y, float color[3])
 {
     glColor3fv(color);
@@ -75,7 +70,6 @@ void drawTPiece(float x, float y, float color[3])
     drawSquare(x + s, y + s, s);
 }
 
-// S Piece
 void drawSPiece(float x, float y, float color[3])
 {
     glColor3fv(color);
@@ -86,7 +80,6 @@ void drawSPiece(float x, float y, float color[3])
     drawSquare(x + 2 * s, y + s, s);
 }
 
-// Z piece
 void drawZPiece(float x, float y, float color[3])
 {
     glColor3fv(color);
@@ -97,7 +90,6 @@ void drawZPiece(float x, float y, float color[3])
     drawSquare(x + s, y + s, s);
 }
 
-// L piece
 void drawLPiece(float x, float y, float color[3])
 {
     glColor3fv(color);
@@ -108,7 +100,6 @@ void drawLPiece(float x, float y, float color[3])
     drawSquare(x + s, y, s);
 }
 
-// J Piece
 void drawJPiece(float x, float y, float color[3])
 {
     glColor3fv(color);
@@ -119,45 +110,27 @@ void drawJPiece(float x, float y, float color[3])
     drawSquare(x - s, y, s);
 }
 
-// ======================
 // Rotated Pieces
-// ======================
-
-// rotated na T piece
 void drawTPieceRight(float x, float y, float color[3])
 {
     glColor3fv(color);
     float s = squareSize;
-
-    // Original T (horizontal top) looks like:
-    // [ ][ ][ ]
-    //    [ ]
-    // Rotated right (clockwise):
-    // [ ]
-    // [ ][ ]
-    // [ ]
-
-    drawSquare(x, y, s);       // top
-    drawSquare(x, y + s, s);   // middle left
-    drawSquare(x + s, y + s, s); // middle right
-    drawSquare(x, y + 2 * s, s); // bottom
+    drawSquare(x, y, s);
+    drawSquare(x, y + s, s);
+    drawSquare(x + s, y + s, s);
+    drawSquare(x, y + 2 * s, s);
 }
 
 void drawTPieceDown(float x, float y, float color[3])
 {
     glColor3fv(color);
     float s = squareSize;
-
-    // Bottom row (3 squares)
-    drawSquare(x, y, s);       // left
-    drawSquare(x + s, y, s);   // middle
-    drawSquare(x + 2 * s, y, s); // right
-
-    // Bottom middle square
+    drawSquare(x, y, s);
+    drawSquare(x + s, y, s);
+    drawSquare(x + 2 * s, y, s);
     drawSquare(x + s, y - s, s);
 }
 
-// Rotated na IPiece
 void drawIPieceVertical(float x, float y, float color[3])
 {
     glColor3fv(color);
@@ -166,132 +139,162 @@ void drawIPieceVertical(float x, float y, float color[3])
         drawSquare(x, y - i * s, s);
 }
 
-//display
+void drawText(float x, float y, const char* text)
+{
+    glRasterPos2f(x, y);
+    glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24,
+        reinterpret_cast<const unsigned char*>(text));
+}
+
+// Display
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-		if (!tetrisClear) {
-			
-			// ======================
-			// Pre Placed Blocks
-			// ======================
-			
-			drawSPiece(-0.8f, -1.0f, green);     // fixed S piece
-	    drawTPieceRight(-1.0f, -1.0f, purple);    // fixed T piece
-	    drawZPiece(-1.0f, -0.6f, red); // fixed Z piece
-	    drawOPiece(0.4f, -0.8f, yellow); // fixed o piece
-	    drawLPiece(0.2f, -1.0f, orange); // fixed L piece
-	    drawJPiece(0.8f, -1.0f, blue); // fixed j piece
-	    drawIPiece(0.2f, -0.4f, cyan); // fixed i peice
-		
-			// ======================
-			// Pieces Hardcoded Animation 
-			// ======================
-	
-			// Third Piece
-			if (TPiecePlaced && !IPiecePlaced) {
-				 if (squareY > 0.9f) {
-		    	drawIPiece(squareX, squareY, cyan);
-				} else if (squareX < 0.0f) {
-					moveX = 0.02f; // move right by x increment
-					drawIPieceVertical(squareX, squareY, cyan);
-				} else if (squareY > -0.4f) {
-					moveX = 0.0f; // stop
-					drawIPieceVertical(squareX, squareY, cyan);
-				} else {
-					drawIPieceVertical(0.0f, -0.4f, cyan);
-					piecePlaced = IPiecePlaced = true;
-					tetrisClear = true;
-				}
-			} else if (TPiecePlaced) {
-				drawIPieceVertical(0.0f, -0.4f, cyan);
-			}
-	
-			// Second Piece
-	    if (JPiecePlaced && !TPiecePlaced) {
-		    if (squareY > 0.6f) {
-		    	drawTPiece(squareX, squareY, purple);
-				} else if (squareX > -0.2f) {
-					moveX = -0.02f; // move left by x increment
-					drawTPieceRight(squareX, squareY, purple);
-				} else if (squareX > -0.4f && squareY > -0.5f) {
-					moveX = -0.02f; // move left by x increment
-					drawTPieceDown(squareX, squareY, purple);
-				} else if (squareX > -0.59f && squareY > -0.4f) {
-					drawTPieceDown(squareX, squareY, purple);
-				} else if (squareY > -0.4f) {
-					moveX = 0.0f; // stop 
-					drawTPieceDown(squareX, squareY, purple);
-				} else {
-					drawTPieceDown(-0.6f, -0.4f, purple);
-					piecePlaced = TPiecePlaced = true;
-					squareY = 1.0f;
-					squareX = -0.4f;
-				}
-			} else if (JPiecePlaced) {
-				drawTPieceDown(-0.6f, -0.4f, purple);
-			}
-	
-			// First Piece
-			if (!JPiecePlaced) {
-				if (squareY > -1.0f) {
-		    	drawJPiece(squareX, squareY, blue);
-				} else if (squareX > -0.2f) {
-					moveX = -0.02f; // move left by x increment
-					drawJPiece(squareX, squareY, blue);
-				} else {
-					drawJPiece(-0.2f, -1.0f, blue);
-					piecePlaced = JPiecePlaced = true;
-				}
-			} else {
-				drawJPiece(-0.2f, -1.0f, blue);
-			}
-		} else {
-			
-			// ======================
-			// Tetris Clear Animation
-			// ======================
-			
-        glutTimerFunc(1000, WhitePieces, 0);
-        glutTimerFunc(1500, OriginalPieces, 0);
-        glutTimerFunc(2000, WhitePieces, 0);
-		}
+    glColor3f(1.0f, 1.0f, 1.0f);
+    drawText(-0.95f, 0.85f, "Ansari Franco E. Alip III");
+    drawText(-0.95f, 0.70f, "Mark David Solomon");
+    drawText(-0.95f, 0.55f, "Tn34");
+    drawText(0.4f, 0.85f, "Tetris with Freeglut");
+
+    if (!tetrisClear) {
+
+        // Pre-placed blocks
+        drawSPiece(-0.8f, -1.0f, green);
+        drawTPieceRight(-1.0f, -1.0f, purple);
+        drawZPiece(-1.0f, -0.6f, red);
+        drawOPiece(0.4f, -0.8f, yellow);
+        drawLPiece(0.2f, -1.0f, orange);
+        drawJPiece(0.8f, -1.0f, blue);
+        drawIPiece(0.2f, -0.4f, cyan);
+
+        // Third piece (I)
+        if (TPiecePlaced && !IPiecePlaced) {
+            if (squareY > 0.9f) {
+                drawIPiece(squareX, squareY, cyan);
+            }
+            else if (squareX < 0.0f) {
+                moveX = 0.02f;
+                drawIPieceVertical(squareX, squareY, cyan);
+            }
+            else if (squareY > -0.4f) {
+                moveX = 0.0f;
+                drawIPieceVertical(squareX, squareY, cyan);
+            }
+            else {
+                drawIPieceVertical(0.0f, -0.4f, cyan);
+                piecePlaced = IPiecePlaced = true;
+                tetrisClear = true;
+
+                // Start blinking text when cleared
+                glutTimerFunc(500, toggleClearText, 0);
+            }
+        }
+        else if (TPiecePlaced) {
+            drawIPieceVertical(0.0f, -0.4f, cyan);
+        }
+
+        // Second piece (T)
+        if (JPiecePlaced && !TPiecePlaced) {
+            if (squareY > 0.6f) {
+                drawTPiece(squareX, squareY, purple);
+            }
+            else if (squareX > -0.2f) {
+                moveX = -0.02f;
+                drawTPieceRight(squareX, squareY, purple);
+            }
+            else if (squareX > -0.4f && squareY > -0.5f) {
+                moveX = -0.02f;
+                drawTPieceDown(squareX, squareY, purple);
+            }
+            else if (squareX > -0.59f && squareY > -0.4f) {
+                drawTPieceDown(squareX, squareY, purple);
+            }
+            else if (squareY > -0.4f) {
+                moveX = 0.0f;
+                drawTPieceDown(squareX, squareY, purple);
+            }
+            else {
+                drawTPieceDown(-0.6f, -0.4f, purple);
+                piecePlaced = TPiecePlaced = true;
+                squareY = 1.0f;
+                squareX = -0.4f;
+            }
+        }
+        else if (JPiecePlaced) {
+            drawTPieceDown(-0.6f, -0.4f, purple);
+        }
+
+        // First piece (J)
+        if (!JPiecePlaced) {
+            if (squareY > -1.0f) {
+                drawJPiece(squareX, squareY, blue);
+            }
+            else if (squareX > -0.2f) {
+                moveX = -0.02f;
+                drawJPiece(squareX, squareY, blue);
+            }
+            else {
+                drawJPiece(-0.2f, -1.0f, blue);
+                piecePlaced = JPiecePlaced = true;
+            }
+        }
+        else {
+            drawJPiece(-0.2f, -1.0f, blue);
+        }
+    }
+    else {
+
+
+        // Blinking "ALL CLEAR!" text
+        if (showClearText) {
+            glColor3f(1.0f, 0.9f, 0.0f);
+            drawText(-0.25f, 0.0f, "ALL CLEAR!");
+        }
+    }
+
     glutSwapBuffers();
 }
 
+// ======================
+// Effects
+// ======================
 void WhitePieces(int value) {
-		drawSPiece(-0.8f, -1.0f, white);     
-    drawTPieceRight(-1.0f, -1.0f, white);    
-    drawZPiece(-1.0f, -0.6f, white); 
+    drawSPiece(-0.8f, -1.0f, white);
+    drawTPieceRight(-1.0f, -1.0f, white);
+    drawZPiece(-1.0f, -0.6f, white);
     drawOPiece(0.4f, -0.8f, white);
-    drawLPiece(0.2f, -1.0f, white); 
-    drawJPiece(0.8f, -1.0f, white); 
-    drawIPiece(0.2f, -0.4f, white); 
-		drawJPiece(-0.2f, -1.0f, white);
-		drawTPieceDown(-0.6f, -0.4f, white);
-		drawIPieceVertical(0.0f, -0.4f, white);
-		glClear(GL_COLOR_BUFFER_BIT);
-
+    drawLPiece(0.2f, -1.0f, white);
+    drawJPiece(0.8f, -1.0f, white);
+    drawIPiece(0.2f, -0.4f, white);
+    drawJPiece(-0.2f, -1.0f, white);
+    drawTPieceDown(-0.6f, -0.4f, white);
+    drawIPieceVertical(0.0f, -0.4f, white);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void OriginalPieces(int value) {
-		drawSPiece(-0.8f, -1.0f, green);
+    drawSPiece(-0.8f, -1.0f, green);
     drawTPieceRight(-1.0f, -1.0f, purple);
-    drawZPiece(-1.0f, -0.6f, red); 
-    drawOPiece(0.4f, -0.8f, yellow); 
-    drawLPiece(0.2f, -1.0f, orange); 
-    drawJPiece(0.8f, -1.0f, blue); 
-    drawIPiece(0.2f, -0.4f, cyan); 
-   	drawJPiece(-0.2f, -1.0f, blue);
-		drawTPieceDown(-0.6f, -0.4f, purple);
-		drawIPieceVertical(0.0f, -0.4f, cyan);
-		glClear(GL_COLOR_BUFFER_BIT);
+    drawZPiece(-1.0f, -0.6f, red);
+    drawOPiece(0.4f, -0.8f, yellow);
+    drawLPiece(0.2f, -1.0f, orange);
+    drawJPiece(0.8f, -1.0f, blue);
+    drawIPiece(0.2f, -0.4f, cyan);
+    drawJPiece(-0.2f, -1.0f, blue);
+    drawTPieceDown(-0.6f, -0.4f, purple);
+    drawIPieceVertical(0.0f, -0.4f, cyan);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
-// ======================
-// Keyboard Handling
-// ======================
+// blinking for text
+void toggleClearText(int value) {
+    showClearText = !showClearText;
+    glutPostRedisplay();
+    glutTimerFunc(500, toggleClearText, 0); // toggle every 500ms
+}
+
+// keyboard handling
 void handleSpecialKeys(int key, int, int)
 {
     const float step = 0.2f;
@@ -319,33 +322,28 @@ void handleNormalKeys(unsigned char key, int, int)
     glutPostRedisplay();
 }
 
+//automatic movements
 void update(int value)
 {
-    const float stepY = 0.02f; // smaller step for smoother movement
-    squareY -= stepY;           // move down automatically
-		squareX += moveX;
-
+    const float stepY = 0.02f;
+    squareY -= stepY;
+    squareX += moveX;
 
     if (squareY <= -1.0f) {
         squareY = -1.0f;
-        
-				if (piecePlaced) {
-					piecePlaced = false;
-					squareX = 0.0f; 
-					moveX = 0.0f;
-					squareY = 1.0f;       	
-				}
-    } // prevent going below
+        if (piecePlaced) {
+            piecePlaced = false;
+            squareX = 0.0f;
+            moveX = 0.0f;
+            squareY = 1.0f;
+        }
+    }
 
-
-    glutPostRedisplay();       // redraw the screen
-    glutTimerFunc(50, update, 0); // call update again in 50ms
+    glutPostRedisplay();
+    glutTimerFunc(50, update, 0);
 }
 
-
-// ======================
-// Main
-// ======================
+//main
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
@@ -359,8 +357,7 @@ int main(int argc, char** argv)
     glutKeyboardFunc(handleNormalKeys);
     glutSpecialFunc(handleSpecialKeys);
 
-    glutTimerFunc(50, update, 0); // start automatic movement
-
+    glutTimerFunc(50, update, 0);
     glutMainLoop();
     return 0;
 }
