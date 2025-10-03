@@ -1,187 +1,190 @@
 #include <GL/freeglut.h>
 
+// ======================
+// Globals
+// ======================
+float squareSize = 0.1f;
+
+// Movable piece controlled by arrow keys
 float squareX = 0.0f;
 float squareY = 0.0f;
-float squareSize = 0.1f;
-float color[3] = {0.2f, 0.7f, 1.0f};
+float currentColor[3] = { 0.2f, 0.7f, 1.0f };
 
-// Function to draw text on screen
-void drawText(float x, float y, const char* text)
-{
-    glRasterPos2f(x, y);
-    glutBitmapString(GLUT_BITMAP_9_BY_15,
-                     reinterpret_cast<const unsigned char*>(text));	
-}
-
-// Small helper: draw one square at (x, y) with size s
+// ======================
+// Helper Functions
+// ======================
 void drawSquare(float x, float y, float s)
 {
     glBegin(GL_QUADS);
-        glVertex2f(x, y);
-        glVertex2f(x + s, y);
-        glVertex2f(x + s, y + s);
-        glVertex2f(x, y + s);
+    glVertex2f(x, y);
+    glVertex2f(x + s, y);
+    glVertex2f(x + s, y + s);
+    glVertex2f(x, y + s);
     glEnd();
 }
 
-/* =========================
-   Tetromino Functions
-   ========================= */
-
-// O Piece (2x2 square)
-void drawOPiece()
+// O piece
+void drawOPiece(float x, float y, float color[3])
 {
+    glColor3fv(color);
     float s = squareSize;
-    drawSquare(squareX, squareY, s);
-    drawSquare(squareX + s, squareY, s);
-    drawSquare(squareX, squareY + s, s);
-    drawSquare(squareX + s, squareY + s, s);
+    drawSquare(x, y, s);
+    drawSquare(x + s, y, s);
+    drawSquare(x, y + s, s);
+    drawSquare(x + s, y + s, s);
 }
 
-/*
-// I Piece
-void drawIPiece()
+// I piece
+void drawIPiece(float x, float y, float color[3])
 {
+    glColor3fv(color);
     float s = squareSize;
-    for (int i = 0; i < 4; i++) {
-        drawSquare(squareX + i*s, squareY, s);
-    }
+    for (int i = 0; i < 4; i++)
+        drawSquare(x + i * s, y, s);
 }
 
-// T Piece
-void drawTPiece()
+// T piece
+void drawTPiece(float x, float y, float color[3])
 {
+    glColor3fv(color);
     float s = squareSize;
-    drawSquare(squareX, squareY, s);
-    drawSquare(squareX + s, squareY, s);
-    drawSquare(squareX + 2*s, squareY, s);
-    drawSquare(squareX + s, squareY + s, s);
+    drawSquare(x, y, s);
+    drawSquare(x + s, y, s);
+    drawSquare(x + 2 * s, y, s);
+    drawSquare(x + s, y + s, s);
 }
-*/
+
 // S Piece
-void drawSPiece()
+void drawSPiece(float x, float y, float color[3])
 {
+    glColor3fv(color);
     float s = squareSize;
-    drawSquare(squareX + s, squareY, s);
-    drawSquare(squareX + 2*s, squareY, s);
-    drawSquare(squareX, squareY + s, s);
-    drawSquare(squareX + s, squareY + s, s);
+    drawSquare(x, y, s);
+    drawSquare(x + s, y, s);
+    drawSquare(x + s, y + s, s);
+    drawSquare(x + 2 * s, y + s, s);
 }
-/*
-// Z Piece
-void drawZPiece()
+
+// Z piece
+void drawZPiece(float x, float y, float color[3])
 {
+    glColor3fv(color);
     float s = squareSize;
-    drawSquare(squareX, squareY, s);
-    drawSquare(squareX + s, squareY, s);
-    drawSquare(squareX + s, squareY + s, s);
-    drawSquare(squareX + 2*s, squareY + s, s);
+    drawSquare(x + s, y, s);
+    drawSquare(x + 2 * s, y, s);
+    drawSquare(x, y + s, s);
+    drawSquare(x + s, y + s, s);
+}
+
+// L piece
+void drawLPiece(float x, float y, float color[3])
+{
+    glColor3fv(color);
+    float s = squareSize;
+    drawSquare(x, y, s);
+    drawSquare(x, y + s, s);
+    drawSquare(x, y + 2 * s, s);
+    drawSquare(x + s, y, s);
 }
 
 // J Piece
-void drawJPiece()
+void drawJPiece(float x, float y, float color[3])
 {
+    glColor3fv(color);
     float s = squareSize;
-    drawSquare(squareX, squareY, s);
-    drawSquare(squareX, squareY + s, s);
-    drawSquare(squareX, squareY + 2*s, s);
-    drawSquare(squareX + s, squareY, s);
+    drawSquare(x, y, s);
+    drawSquare(x, y + s, s);
+    drawSquare(x, y + 2 * s, s);
+    drawSquare(x - s, y, s);
 }
 
-// L Piece
-void drawLPiece()
+// rotated na T piece
+void drawTPieceRight(float x, float y, float color[3])
 {
+    glColor3fv(color);
     float s = squareSize;
-    drawSquare(squareX, squareY, s);
-    drawSquare(squareX, squareY + s, s);
-    drawSquare(squareX, squareY + 2*s, s);
-    drawSquare(squareX - s, squareY, s);
-}
-*/
 
+    // Original T (horizontal top) looks like:
+    // [ ][ ][ ]
+    //    [ ]
+    // Rotated right (clockwise):
+    // [ ]
+    // [ ][ ]
+    // [ ]
+
+    drawSquare(x, y, s);       // top
+    drawSquare(x, y + s, s);   // middle left
+    drawSquare(x + s, y + s, s); // middle right
+    drawSquare(x, y + 2 * s, s); // bottom
+}
+
+
+//display
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glColor3fv(color);
+    // pre placed blockss
+    float green[3] = { 0.0f, 1.0f, 0.0f };
+    float purple[3] = { 1.0f, 0.0f, 1.0f };
+    float red[3] = { 1.0f, 0.0f, 0.0f };
+    float yellow[3] = { 1.0f, 1.0f, 0.0f };
+    float blue[3] = { 0.0f, 0.0f, 1.0f };
+    float orange[3] = { 1.0f, 0.5f, 0.0f };
 
-    // Active Tetromino (currently O Piece)
-    // drawOPiece();
-    // Uncomment to test others:
-    // drawIPiece();
-    // drawTPiece();
-     drawSPiece();
-    // drawZPiece();
-    // drawJPiece();
-    // drawLPiece();
+    drawSPiece(-0.9f, -1.0f, green);     // fixed S piece
+    drawTPieceRight(-1.0f, -1.0f, purple);    // fixed T piece
+    drawZPiece(-1.0f, -0.8f, red); // fixed Z piece
+    drawOPiece(0.7f, -0.9f, yellow); // fixed o piece
+    drawLPiece(0.6f, -1.0f, blue); // fixed L piece
+    drawJPiece(0.9f, -1.0f, orange); // fixed j piece
+    drawIPiece(0.6f, -0.7f, currentColor);
 
-    glColor3f(1.0f, 1.0f, 1.0f);
-    drawText(-0.95f, 0.85f, "Normal keys: R/G/B change color, C resets, Esc quits");
-    drawText(-0.95f, 0.70f, "Arrow keys move the piece (handled by glutSpecialFunc)");
+    // dito yung moveable pieces
+    drawIPiece(squareX, squareY, currentColor);
 
     glutSwapBuffers();
+}
+
+// ======================
+// Keyboard Handling
+// ======================
+void handleSpecialKeys(int key, int, int)
+{
+    const float step = 0.05f;
+    switch (key) {
+    case GLUT_KEY_LEFT:  squareX -= step; break;
+    case GLUT_KEY_RIGHT: squareX += step; break;
+    case GLUT_KEY_UP:    squareY += step; break;
+    case GLUT_KEY_DOWN:  squareY -= step; break;
+    }
+    glutPostRedisplay();
 }
 
 void handleNormalKeys(unsigned char key, int, int)
 {
     switch (key) {
-    case 'r':
-    case 'R':
-        color[0] = 1.0f; color[1] = 0.1f; color[2] = 0.1f;
+    case 'r': case 'R': currentColor[0] = 1.0f; currentColor[1] = 0.1f; currentColor[2] = 0.1f; break;
+    case 'g': case 'G': currentColor[0] = 0.2f; currentColor[1] = 1.0f; currentColor[2] = 0.2f; break;
+    case 'b': case 'B': currentColor[0] = 0.2f; currentColor[1] = 0.5f; currentColor[2] = 1.0f; break;
+    case 'c': case 'C':
+        currentColor[0] = 0.2f; currentColor[1] = 0.7f; currentColor[2] = 1.0f;
+        squareX = 0.0f; squareY = 0.0f;
         break;
-    case 'g':
-    case 'G':
-        color[0] = 0.2f; color[1] = 1.0f; color[2] = 0.2f;
-        break;
-    case 'b':
-    case 'B':
-        color[0] = 0.2f; color[1] = 0.5f; color[2] = 1.0f;
-        break;
-    case 'c':
-    case 'C':
-        color[0] = 0.2f; color[1] = 0.7f; color[2] = 1.0f;
-        squareX = 0.0f;
-        squareY = 0.0f;
-        break;
-    case 27:
-        glutLeaveMainLoop();
-        return;
-    default:
-        return;
+    case 27: glutLeaveMainLoop(); return;
     }
-
     glutPostRedisplay();
 }
 
-void handleSpecialKeys(int key, int, int)
-{
-    const float step = 0.05f;
-    switch (key) {
-    case GLUT_KEY_LEFT:
-        squareX -= step;
-        break;
-    case GLUT_KEY_RIGHT:
-        squareX += step;
-        break;
-    case GLUT_KEY_UP:
-        squareY += step;
-        break;
-    case GLUT_KEY_DOWN:
-        squareY -= step;
-        break;
-    default:
-        return;
-    }
-
-    glutPostRedisplay();
-}
-
+// ======================
+// Main
+// ======================
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(720, 520);
-    glutCreateWindow("glutKeyboardFunc example with movement");
+    glutCreateWindow("Pre-placed & Movable Tetromino Example");
 
     glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
 
@@ -192,4 +195,3 @@ int main(int argc, char** argv)
     glutMainLoop();
     return 0;
 }
-
